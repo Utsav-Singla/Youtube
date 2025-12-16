@@ -28,10 +28,19 @@ const videoSchema = new mongoose.Schema(
       ref: 'User',
       required: true,
     },
+
+    views: {
+      type: Number,
+      default: 0,
+    },
+
+    isPublished: {
+      type: Boolean,
+      default: true,
+    },
   },
   { timestamps: true }
 );
 
 const Video = mongoose.model('Video', videoSchema);
-
 export default Video;
