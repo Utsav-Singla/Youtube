@@ -5,6 +5,7 @@ const videoSchema = new mongoose.Schema(
     title: {
       type: String,
       required: true,
+      trim: true,
     },
 
     description: {
@@ -22,20 +23,13 @@ const videoSchema = new mongoose.Schema(
       required: true,
     },
 
-    views: {
-      type: Number,
-      default: 0,
-    },
-
     owner: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
       required: true,
     },
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
 
 const Video = mongoose.model('Video', videoSchema);
