@@ -24,6 +24,18 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
+
+    // 🔐 NEW: store access token
+    accessToken: {
+      type: String,
+      default: null,
+    },
+
+    // 🔐 refresh token (already present)
+    refreshToken: {
+      type: String,
+      default: null,
+    },
   },
   {
     timestamps: true,
