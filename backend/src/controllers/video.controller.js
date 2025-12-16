@@ -1,4 +1,5 @@
-import Video from '../models/video.models.js';
+import Video from '../models/video.models.js'
+import Like from '../models/like.models.js';
 import mongoose from 'mongoose';
 /**
  * @desc    Upload video
@@ -132,4 +133,33 @@ const getVideoById = async (req, res) => {
   }
 };
 
-export { uploadVideoController, getAllVideos, getVideoById };
+
+
+const getVideoReactions = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const likes = await Like.countDocuments({
+      video: id,
+      type: 'like',
+    });
+
+    const dislikes = await Like.countDocuments({
+      video: id,
+      type: 'dislike',
+    });
+
+    return res.status(200).json({
+      success: true,
+      likes,
+      dislikes,
+    });
+  } catch {
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to fetch reactions',
+    });
+  }
+};
+
+export { uploadVideoController, getAllVideos, getVideoById, getVideoReactions };

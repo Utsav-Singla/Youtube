@@ -3,7 +3,8 @@ import protect from '../middlewares/auth.middleware.js';
 import {
   uploadVideoController,
   getAllVideos,
-  getVideoById
+  getVideoById,
+  getVideoReactions
 } from '../controllers/video.controller.js';
 import upload from '../middlewares/upload.middleware.js';
 
@@ -25,5 +26,8 @@ router.get('/' , getAllVideos);
 
 // Get video by ID
 router.get('/:id', getVideoById);
+
+// Get video reactions (likes & dislikes)
+router.get('/:id/reactions', getVideoReactions);
 
 export default router;
