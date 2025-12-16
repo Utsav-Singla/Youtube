@@ -103,12 +103,12 @@ const registerUser = async (req, res) => {
  */
 const refreshAccessToken = async (req, res) => {
   try {
-    const { refreshToken } = req.body;
+    const refreshToken = req.cookies.refreshToken;
 
     if (!refreshToken) {
       return res.status(401).json({
         success: false,
-        message: 'Refresh token required',
+        message: 'Refresh token missing',
       });
     }
 
@@ -127,12 +127,14 @@ const refreshAccessToken = async (req, res) => {
     }
 
     const newAccessToken = generateAccessToken(user._id);
+    user.accessToken = newAccessToken;
+    await user.save();
 
     return res.status(200).json({
       success: true,
       accessToken: newAccessToken,
     });
-  } catch (error) {
+  } catch {
     return res.status(403).json({
       success: false,
       message: 'Invalid or expired refresh token',
@@ -183,6 +185,13 @@ const loginUser = async (req, res) => {
     user.accessToken = accessToken;
     user.refreshToken = refreshToken;
     await user.save();
+    
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: false, // true in production (HTTPS)
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
 
     return res.status(200).json({
       success: true,
@@ -215,11 +224,13 @@ const logoutUser = async (req, res) => {
     req.user.refreshToken = null;
     await req.user.save();
 
+    res.clearCookie('refreshToken');
+
     return res.status(200).json({
       success: true,
       message: 'Logged out successfully',
     });
-  } catch (error) {
+  } catch {
     return res.status(500).json({
       success: false,
       message: 'Logout failed',
