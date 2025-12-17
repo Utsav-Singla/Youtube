@@ -14,11 +14,18 @@ const subscriptionSchema = new mongoose.Schema(
       required: true,
     },
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
 
-const Subscription = mongoose.model('Subscription', subscriptionSchema);
+// One subscription per user per channel
+subscriptionSchema.index(
+  { subscriber: 1, channel: 1 },
+  { unique: true }
+);
+
+const Subscription = mongoose.model(
+  'Subscription',
+  subscriptionSchema
+);
 
 export default Subscription;
