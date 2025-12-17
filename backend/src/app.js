@@ -9,12 +9,14 @@ import commentRoutes from './routes/comment.routes.js';
 import channelRoutes from './routes/channel.routes.js';
 import subscriptionRoutes from './routes/subscription.routes.js';
 import searchRoutes from './routes/search.routes.js';
+import watchHistoryRoutes from './routes/watchHistory.routes.js';
 
 const app = express();
 
 
 app.use(express.json());
 app.use(cookieParser());
+app.use(express.urlencoded({ extended: true }));
 
 app.use(
   cors({
@@ -34,6 +36,7 @@ app.use('/api/comments', commentRoutes);
 app.use('/api/channels', channelRoutes);
 app.use('/api/subscriptions', subscriptionRoutes);
 app.use('/api/search', searchRoutes);
+app.use('/api/history', watchHistoryRoutes);
 
 
 export default app;
