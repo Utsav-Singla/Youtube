@@ -5,6 +5,8 @@ const commentSchema = new mongoose.Schema(
     text: {
       type: String,
       required: true,
+      trim: true,
+      maxlength: 500,
     },
 
     video: {
@@ -19,11 +21,8 @@ const commentSchema = new mongoose.Schema(
       required: true,
     },
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
 
 const Comment = mongoose.model('Comment', commentSchema);
-
 export default Comment;
