@@ -1,46 +1,56 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route } from "react-router-dom";
 
-import Login from './pages/Login';
-import Register from './pages/Register';
-import ProtectedRoute from './components/ProtectedRoute';
-import AuthRedirect from './components/AuthRedirect';
-
-const Home = () => (
-  <div className="min-h-screen flex items-center justify-center">
-    <h1 className="text-2xl font-semibold">Logged in ✅</h1>
-  </div>
-);
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Home from "./pages/Home";
+import ProtectedRoute from "./components/ProtectedRoute";
+import AuthRedirect from "./components/AuthRedirect";
+import Navbar from "./components/Navbar";
+import Watch from "./pages/Watch";
 
 const App = () => {
   return (
-    <Routes>
-      <Route
-        path="/login"
-        element={
-          <AuthRedirect>
-            <Login />
-          </AuthRedirect>
-        }
-      />
+    <>
+      <Navbar />
 
-      <Route
-        path="/register"
-        element={
-          <AuthRedirect>
-            <Register />
-          </AuthRedirect>
-        }
-      />
+      <Routes>
+        <Route
+          path="/login"
+          element={
+            <AuthRedirect>
+              <Login />
+            </AuthRedirect>
+          }
+        />
 
-      <Route
-        path="/"
-        element={
-          <ProtectedRoute>
-            <Home />
-          </ProtectedRoute>
-        }
-      />
-    </Routes>
+        <Route
+          path="/register"
+          element={
+            <AuthRedirect>
+              <Register />
+            </AuthRedirect>
+          }
+        />
+
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <Home />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/watch/:id"
+          element={
+            <ProtectedRoute>
+              <Watch />
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
+    </>
   );
 };
 
