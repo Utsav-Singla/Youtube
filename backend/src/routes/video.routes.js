@@ -28,6 +28,6 @@ router.get('/' , getAllVideos);
 router.get('/:id', getVideoById);
 
 // Get video reactions (likes & dislikes)
-router.get('/:id/reactions', getVideoReactions);
+router.get('/:id/reactions',protect, getVideoReactions);
 
 export default router;

@@ -141,23 +141,37 @@ const getVideoReactions = async (req, res) => {
 
     const likes = await Like.countDocuments({
       video: id,
-      type: 'like',
+      type: "like",
     });
 
     const dislikes = await Like.countDocuments({
       video: id,
-      type: 'dislike',
+      type: "dislike",
     });
+
+    let userReaction = null;
+
+    // ✅ req.user exists ONLY if route is protected
+    if (req.user) {
+      const userReactionDoc = await Like.findOne({
+        video: id,
+        user: req.user._id,
+      });
+
+      userReaction = userReactionDoc?.type || null;
+    }
 
     return res.status(200).json({
       success: true,
       likes,
       dislikes,
+      userReaction,
     });
-  } catch {
+  } catch (error) {
+    console.error("GET REACTIONS ERROR:", error);
     return res.status(500).json({
       success: false,
-      message: 'Failed to fetch reactions',
+      message: "Failed to fetch reactions",
     });
   }
 };
