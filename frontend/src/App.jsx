@@ -11,6 +11,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import AuthRedirect from "./components/AuthRedirect";
 import MainLayout from "./layouts/MainLayout";
 import WatchHistory from "./pages/WatchHistory";
+import Channel from "./pages/Channel";
 
 const App = () => {
   return (
@@ -47,6 +48,7 @@ const App = () => {
         <Route path="/upload" element={<Upload />} />
         <Route path="/search" element={<Search />} />
         <Route path="/history" element={<WatchHistory />} />
+        <Route path="/channel/:id" element={<Channel />} />
       </Route>
     </Routes>
   );
