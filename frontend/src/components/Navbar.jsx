@@ -1,59 +1,69 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 const Navbar = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const [query, setQuery] = useState("");
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (!query.trim()) return;
+    navigate(`/search?q=${encodeURIComponent(query)}`);
+    setQuery("");
+  };
 
   return (
-    <header className="sticky top-0 z-50 bg-black border-b border-[#2a2a2a]">
-      <div className="h-14 px-4 md:px-6 flex items-center justify-between gap-4">
+    <nav className="w-full h-14 bg-[#202020] border-b border-[#303030] px-6 flex items-center justify-between">
 
-        {/* Logo */}
-        <div
-          onClick={() => navigate("/")}
-          className="flex items-center gap-1 cursor-pointer"
-        >
-          <span className="text-lg font-bold text-white">My</span>
-          <span className="text-lg font-bold text-red-600">Tube</span>
-        </div>
-
-        {/* Search */}
-        <div className="hidden md:flex flex-1 max-w-xl">
-          <input
-            type="text"
-            placeholder="Search"
-            className="w-full bg-[#121212] border border-[#303030] text-white placeholder-gray-500 px-5 py-1.5 rounded-full focus:outline-none focus:border-red-500"
-          />
-        </div>
-
-        {/* Right */}
-        {user && (
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => navigate("/upload")}
-              className="px-4 py-1.5 rounded-full bg-[#303030] text-white text-sm hover:bg-[#3a3a3a]"
-            >
-              Upload
-            </button>
-
-            <div className="h-9 w-9 rounded-full bg-[#3a3a3a] flex items-center justify-center text-sm font-medium text-white">
-              {user.name?.charAt(0).toUpperCase()}
-            </div>
-
-            <button
-              onClick={() => {
-                logout();
-                navigate("/login");
-              }}
-              className="px-3 py-1.5 rounded-full bg-red-600 text-sm hover:bg-red-700"
-            >
-              Logout
-            </button>
-          </div>
-        )}
+      {/* LOGO */}
+      <div
+        onClick={() => navigate("/")}
+        className="text-xl font-semibold cursor-pointer text-white"
+      >
+        <span className="text-red-600">You</span>Tube
       </div>
-    </header>
+
+      {/* SEARCH */}
+      <form onSubmit={handleSearch} className="flex w-full max-w-xl mx-6">
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search"
+          className="flex-1 px-4 py-2 text-sm bg-[#121212] text-white placeholder-gray-400 border border-[#303030] rounded-l-full outline-none"
+        />
+        <button className="px-5 bg-[#303030] text-gray-200 rounded-r-full">
+          🔍
+        </button>
+      </form>
+
+      {/* USER */}
+      {user && (
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => navigate("/upload")}
+            className="px-4 py-1.5 text-sm rounded-full bg-[#303030] text-white"
+          >
+            Upload
+          </button>
+
+          <span className="text-sm text-gray-300">
+            {user.name}
+          </span>
+
+          <button
+            onClick={() => {
+              logout();
+              navigate("/login");
+            }}
+            className="px-4 py-1.5 text-sm rounded-full bg-red-600 text-white"
+          >
+            Logout
+          </button>
+        </div>
+      )}
+    </nav>
   );
 };
 

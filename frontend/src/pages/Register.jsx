@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
-import AuthLayout from "../components/AuthLayout";
+import AuthLayout from "../layouts/AuthLayout";
 
 const Register = () => {
   const [form, setForm] = useState({
@@ -40,10 +40,7 @@ const Register = () => {
   };
 
   return (
-    <AuthLayout
-      title="Create account"
-      subtitle="Join MyTube today"
-    >
+    <AuthLayout title="Create account" subtitle="Join MyTube today">
       {error && (
         <div className="mb-5 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">
           {error}
@@ -58,9 +55,7 @@ const Register = () => {
             placeholder={field.toUpperCase()}
             className="w-full rounded-xl bg-black/40 border border-white/10 px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-600 transition"
             value={form[field]}
-            onChange={(e) =>
-              setForm({ ...form, [field]: e.target.value })
-            }
+            onChange={(e) => setForm({ ...form, [field]: e.target.value })}
             required
           />
         ))}
@@ -71,9 +66,7 @@ const Register = () => {
             placeholder="PASSWORD"
             className="w-full rounded-xl bg-black/40 border border-white/10 px-4 py-3 text-white focus:ring-2 focus:ring-red-600 outline-none"
             value={form.password}
-            onChange={(e) =>
-              setForm({ ...form, password: e.target.value })
-            }
+            onChange={(e) => setForm({ ...form, password: e.target.value })}
             required
           />
           <button
@@ -90,9 +83,7 @@ const Register = () => {
           placeholder="CONFIRM PASSWORD"
           className="w-full rounded-xl bg-black/40 border border-white/10 px-4 py-3 text-white focus:ring-2 focus:ring-red-600 outline-none"
           value={form.confirm}
-          onChange={(e) =>
-            setForm({ ...form, confirm: e.target.value })
-          }
+          onChange={(e) => setForm({ ...form, confirm: e.target.value })}
           required
         />
 
