@@ -10,6 +10,7 @@ const Watch = () => {
   const [newComment, setNewComment] = useState("");
   const [loading, setLoading] = useState(true);
 
+ 
   useEffect(() => {
     const fetchVideo = async () => {
       try {
@@ -24,7 +25,21 @@ const Watch = () => {
 
     fetchVideo();
   }, [id]);
+  
+  useEffect(() => {
+    const updateWatchHistory = async () => {
+      try {
+        await api.post(`/history/${id}`, { progress: 0 });
+      } catch (err) {
+        console.error('WATCH HISTORY UPDATE ERROR', err);
+      } finally {
+        // No need to set loading here
+      } };
 
+    updateWatchHistory(); 
+  },[id])
+
+  
   useEffect(() => {
     const fetchComments = async () => {
       try {
@@ -73,7 +88,6 @@ const Watch = () => {
   return (
     <div className="min-h-screen bg-black text-white px-4 sm:px-6 py-6">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-
         {/* LEFT – VIDEO + INFO */}
         <div className="lg:col-span-2">
           {/* Video */}
@@ -91,15 +105,11 @@ const Watch = () => {
           </h1>
 
           {/* Description */}
-          <p className="mt-2 text-sm text-gray-400">
-            {video.description}
-          </p>
+          <p className="mt-2 text-sm text-gray-400">{video.description}</p>
 
           {/* COMMENTS */}
           <div className="mt-8">
-            <h2 className="text-lg font-medium mb-4">
-              Comments
-            </h2>
+            <h2 className="text-lg font-medium mb-4">Comments</h2>
 
             {/* Add comment */}
             <form onSubmit={submitComment} className="mb-6">
@@ -114,20 +124,17 @@ const Watch = () => {
 
             {/* Comment list */}
             {comments.length === 0 ? (
-              <p className="text-gray-500 text-sm">
-                No comments yet
-              </p>
+              <p className="text-gray-500 text-sm">No comments yet</p>
             ) : (
               <ul className="space-y-4">
                 {comments.map((c) => (
-                  <li
-                    key={c._id}
-                    className="flex gap-3"
-                  >
+                  <li key={c._id} className="flex gap-3">
                     {/* Avatar */}
                     <div className="h-9 w-9 rounded-full bg-neutral-800 overflow-hidden shrink-0">
                       <img
-                        src={`https://api.dicebear.com/7.x/initials/svg?seed=${c.user?.name || "User"}`}
+                        src={`https://api.dicebear.com/7.x/initials/svg?seed=${
+                          c.user?.name || "User"
+                        }`}
                         alt="avatar"
                         className="h-full w-full object-cover"
                       />
@@ -138,9 +145,7 @@ const Watch = () => {
                       <p className="text-sm font-medium">
                         {c.user?.name || "User"}
                       </p>
-                      <p className="text-sm text-gray-300 mt-1">
-                        {c.text}
-                      </p>
+                      <p className="text-sm text-gray-300 mt-1">{c.text}</p>
                     </div>
                   </li>
                 ))}

@@ -10,11 +10,11 @@ import Search from "./pages/Search";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AuthRedirect from "./components/AuthRedirect";
 import MainLayout from "./layouts/MainLayout";
+import WatchHistory from "./pages/WatchHistory";
 
 const App = () => {
   return (
     <Routes>
-
       {/* AUTH PAGES (NO NAVBAR) */}
       <Route
         path="/login"
@@ -46,8 +46,8 @@ const App = () => {
         <Route path="/watch/:id" element={<Watch />} />
         <Route path="/upload" element={<Upload />} />
         <Route path="/search" element={<Search />} />
+        <Route path="/history" element={<WatchHistory />} />
       </Route>
-
     </Routes>
   );
 };

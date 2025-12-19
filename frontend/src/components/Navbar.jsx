@@ -16,13 +16,12 @@ const Navbar = () => {
 
   return (
     <nav className="w-full h-14 bg-[#202020] border-b border-[#303030] px-6 flex items-center justify-between">
-
       {/* LOGO */}
       <div
         onClick={() => navigate("/")}
         className="text-xl font-semibold cursor-pointer text-white"
       >
-        <span className="text-red-600">You</span>Tube
+        <span className="text-red-600">My</span>Tube
       </div>
 
       {/* SEARCH */}
@@ -47,10 +46,14 @@ const Navbar = () => {
           >
             Upload
           </button>
+          <button
+            onClick={() => navigate("/history")}
+            className="px-4 py-1.5 text-sm rounded-full bg-[#303030] text-white"
+          >
+            History
+          </button>
 
-          <span className="text-sm text-gray-300">
-            {user.name}
-          </span>
+          <span className="text-sm text-gray-300">{user.name}</span>
 
           <button
             onClick={() => {
