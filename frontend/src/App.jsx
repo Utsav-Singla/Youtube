@@ -7,6 +7,8 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import AuthRedirect from "./components/AuthRedirect";
 import Navbar from "./components/Navbar";
 import Watch from "./pages/Watch";
+import Upload from "./pages/Upload";
+
 
 const App = () => {
   return (
@@ -46,6 +48,15 @@ const App = () => {
           element={
             <ProtectedRoute>
               <Watch />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/upload"
+          element={
+            <ProtectedRoute>
+              <Upload />
             </ProtectedRoute>
           }
         />
