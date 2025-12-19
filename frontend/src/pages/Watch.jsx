@@ -21,11 +21,15 @@ const Watch = () => {
   const [userReaction, setUserReaction] = useState(null);
   const [reactionLoading, setReactionLoading] = useState(false);
 
+  const [subscribed, setSubscribed] = useState(false);
+  const [subscribersCount, setSubscribersCount] = useState(0);
+  const [subLoading, setSubLoading] = useState(false);
+
   useEffect(() => {
-  if (video) {
-    console.log("VIDEO OBJECT:", video);
-  }
-}, [video]);
+    if (video) {
+      console.log("VIDEO OBJECT:", video);
+    }
+  }, [video]);
 
   // ---------------- FETCH VIDEO + REACTIONS ----------------
   useEffect(() => {
@@ -62,6 +66,26 @@ const Watch = () => {
       if (blobUrl) URL.revokeObjectURL(blobUrl);
     };
   }, [id]);
+
+  // ---------------- FETCH SUBSCRIPTION STATS ----------------
+  useEffect(() => {
+    if (!video?.owner?._id) return;
+
+    const fetchSubStats = async () => {
+      try {
+        const { data } = await api.post(
+          `/subscriptions/${video.owner._id}/stats`
+        );
+
+        setSubscribersCount(data.subscribers);
+        setSubscribed(data.isSubscribed);
+      } catch (err) {
+        console.error("SUB STATS ERROR", err);
+      }
+    };
+
+    fetchSubStats();
+  }, [video]);
 
   // ---------------- FETCH COMMENTS ----------------
   useEffect(() => {
@@ -157,6 +181,32 @@ const Watch = () => {
     }
   };
 
+  // ---------------- TOGGLE SUBSCRIPTION ----------------
+  const toggleSubscribe = async () => {
+    if (subLoading || !video?.owner?._id) return;
+
+    // optimistic UI
+    setSubscribed((prev) => !prev);
+    setSubscribersCount((prev) =>
+      subscribed ? Math.max(0, prev - 1) : prev + 1
+    );
+
+    try {
+      setSubLoading(true);
+      await api.post(`/subscriptions/${video.owner._id}`);
+    } catch (err) {
+      console.error("SUBSCRIBE ERROR", err);
+
+      // rollback on failure
+      setSubscribed((prev) => !prev);
+      setSubscribersCount((prev) =>
+        subscribed ? prev + 1 : Math.max(0, prev - 1)
+      );
+    } finally {
+      setSubLoading(false);
+    }
+  };
+
   // ---------------- ADD COMMENT ----------------
   const submitComment = async (e) => {
     e.preventDefault();
@@ -210,7 +260,7 @@ const Watch = () => {
             {video.title}
           </h1>
 
-          {/* CHANNEL + ACTIONS */}
+          {/* CHANNEL + SUBSCRIBE + ACTIONS */}
           <div className="flex items-center justify-between flex-wrap gap-4">
             {/* CHANNEL INFO */}
             <button
@@ -219,57 +269,75 @@ const Watch = () => {
               className="flex items-center gap-3 hover:opacity-90"
             >
               <div className="h-10 w-10 rounded-full bg-neutral-800 flex items-center justify-center text-sm font-medium">
-                {video.ownerName?.[0] || "U"}
+                {video.owner.name?.[0] || "U"}
               </div>
+
               <div className="text-left">
-                <p className="text-sm font-medium">
-                  {video.ownerName || "Channel"}
+                <p className="text-sm font-medium">{video.owner.name}</p>
+                <p className="text-xs text-gray-400">
+                  {subscribersCount.toLocaleString()} subscribers
                 </p>
-                <p className="text-xs text-gray-400">View channel</p>
               </div>
             </button>
 
-            {/* ACTIONS */}
-            <div className="flex items-center gap-2 bg-neutral-900 border border-neutral-800 rounded-full px-2 py-1">
+            {/* SUBSCRIBE + LIKE/DISLIKE */}
+            <div className="flex items-center gap-3">
+              {/* SUBSCRIBE */}
               <button
-                type="button"
-                disabled={reactionLoading}
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  toggleReaction("like");
-                }}
-                className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-sm transition
+                disabled={subLoading}
+                onClick={toggleSubscribe}
+                className={`px-5 py-2 rounded-full text-sm font-medium transition
                 ${
-                  userReaction === "like"
-                    ? "bg-blue-600 text-white"
-                    : "text-gray-300 hover:bg-neutral-800"
+                  subscribed
+                    ? "bg-neutral-700 text-white hover:bg-neutral-600"
+                    : "bg-red-600 text-white hover:bg-red-700"
                 }`}
               >
-                👍 {likes}
+                {subscribed ? "Subscribed" : "Subscribe"}
               </button>
 
-              <button
-                type="button"
-                disabled={reactionLoading}
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  toggleReaction("dislike");
-                }}
-                className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-sm transition
-                ${
-                  userReaction === "dislike"
-                    ? "bg-gray-600 text-white"
-                    : "text-gray-300 hover:bg-neutral-800"
-                }`}
-              >
-                👎 {dislikes}
-              </button>
+              {/* LIKE / DISLIKE */}
+              <div className="flex items-center gap-2 bg-neutral-900 border border-neutral-800 rounded-full px-2 py-1">
+                <button
+                  type="button"
+                  disabled={reactionLoading}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    toggleReaction("like");
+                  }}
+                  className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-sm transition
+                  ${
+                    userReaction === "like"
+                      ? "bg-blue-600 text-white"
+                      : "text-gray-300 hover:bg-neutral-800"
+                  }`}
+                >
+                  👍 {likes}
+                </button>
+
+                <button
+                  type="button"
+                  disabled={reactionLoading}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    toggleReaction("dislike");
+                  }}
+                  className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-sm transition
+                  ${
+                    userReaction === "dislike"
+                      ? "bg-gray-600 text-white"
+                      : "text-gray-300 hover:bg-neutral-800"
+                  }`}
+                >
+                  👎 {dislikes}
+                </button>
+              </div>
             </div>
           </div>
 
-          {/* DESCRIPTION CARD */}
+          {/* DESCRIPTION */}
           <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-4 text-sm text-gray-300 leading-relaxed">
             {video.description || "No description provided."}
           </div>

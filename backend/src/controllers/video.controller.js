@@ -134,7 +134,6 @@ const getVideoById = async (req, res) => {
 };
 
 
-
 const getVideoReactions = async (req, res) => {
   try {
     const { id } = req.params;
@@ -175,5 +174,6 @@ const getVideoReactions = async (req, res) => {
     });
   }
 };
+
 
 export { uploadVideoController, getAllVideos, getVideoById, getVideoReactions };

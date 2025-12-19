@@ -69,7 +69,7 @@ const Home = () => {
                   {/* Avatar */}
                   <div className="h-9 w-9 rounded-full bg-neutral-800 overflow-hidden shrink-0">
                     <img
-                      src={`https://api.dicebear.com/7.x/initials/svg?seed=${video.channelName || "User"}`}
+                      src={`https://api.dicebear.com/7.x/initials/svg?seed=${video.owner?.name || "User"}`}
                       alt="channel"
                       className="h-full w-full object-cover"
                     />
@@ -81,7 +81,7 @@ const Home = () => {
                     </h2>
 
                     <p className="mt-1 text-xs text-gray-400">
-                      {video.channelName || "Unknown Channel"}
+                      {video.owner?.name || "Unknown Channel"}
                     </p>
 
                     <p className="text-xs text-gray-500">
