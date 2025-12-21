@@ -16,23 +16,37 @@ const Upload = () => {
     e.preventDefault();
     setError("");
 
-    if (!title || !video || !thumbnail) {
-      setError("Title, video and thumbnail are required");
+    // ✅ Only title & video are required
+    if (!title.trim() || !video) {
+      setError("Title and video file are required");
       return;
     }
 
     const formData = new FormData();
-    formData.append("title", title);
-    formData.append("description", description);
+    formData.append("title", title.trim());
+    formData.append("description", description.trim());
     formData.append("video", video);
-    formData.append("thumbnail", thumbnail);
+
+    // ✅ Thumbnail is OPTIONAL
+    if (thumbnail) {
+      formData.append("thumbnail", thumbnail);
+    }
 
     try {
       setLoading(true);
-      const { data } = await api.post("/videos", formData);
+
+      const { data } = await api.post("/videos", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
       navigate(`/watch/${data.video._id}`);
     } catch (err) {
-      setError(err.response?.data?.message || "Upload failed");
+      setError(
+        err.response?.data?.message ||
+          "Video upload failed. Please try again."
+      );
     } finally {
       setLoading(false);
     }
@@ -54,10 +68,10 @@ const Upload = () => {
 
         <form onSubmit={handleSubmit} className="space-y-5">
 
-          {/* Title */}
+          {/* TITLE */}
           <div>
             <label className="block text-sm text-gray-300 mb-1">
-              Title
+              Title *
             </label>
             <input
               type="text"
@@ -68,7 +82,7 @@ const Upload = () => {
             />
           </div>
 
-          {/* Description */}
+          {/* DESCRIPTION */}
           <div>
             <label className="block text-sm text-gray-300 mb-1">
               Description
@@ -82,32 +96,37 @@ const Upload = () => {
             />
           </div>
 
-          {/* Video */}
+          {/* VIDEO FILE */}
           <div>
             <label className="block text-sm text-gray-300 mb-1">
-              Video file
+              Video file *
             </label>
             <input
               type="file"
               accept="video/*"
               onChange={(e) => setVideo(e.target.files[0])}
-              className="w-full text-sm text-gray-300 file:bg-[#303030] file:text-white file:px-4 file:py-2 file:rounded file:border-0 hover:file:bg-[#3a3a3a]"
+              className="w-full text-sm text-gray-300
+                file:bg-[#303030] file:text-white file:px-4 file:py-2
+                file:rounded file:border-0 hover:file:bg-[#3a3a3a]"
             />
           </div>
 
-          {/* Thumbnail */}
+          {/* THUMBNAIL (OPTIONAL) */}
           <div>
             <label className="block text-sm text-gray-300 mb-1">
-              Thumbnail
+              Thumbnail (optional)
             </label>
             <input
               type="file"
               accept="image/*"
               onChange={(e) => setThumbnail(e.target.files[0])}
-              className="w-full text-sm text-gray-300 file:bg-[#303030] file:text-white file:px-4 file:py-2 file:rounded file:border-0 hover:file:bg-[#3a3a3a]"
+              className="w-full text-sm text-gray-300
+                file:bg-[#303030] file:text-white file:px-4 file:py-2
+                file:rounded file:border-0 hover:file:bg-[#3a3a3a]"
             />
           </div>
 
+          {/* SUBMIT */}
           <button
             disabled={loading}
             className="w-full bg-red-600 hover:bg-red-700 transition py-3 rounded font-medium text-white disabled:opacity-50"

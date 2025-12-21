@@ -25,6 +25,10 @@ const Watch = () => {
   const [subscribersCount, setSubscribersCount] = useState(0);
   const [subLoading, setSubLoading] = useState(false);
 
+  // Recommendations
+  const [recommended, setRecommended] = useState([]);
+  const [recLoading, setRecLoading] = useState(true);
+
   useEffect(() => {
     if (video) {
       console.log("VIDEO OBJECT:", video);
@@ -207,6 +211,26 @@ const Watch = () => {
     }
   };
 
+  // ---------------- FETCH RECOMMENDATIONS ----------------
+  // ---------------- FETCH RECOMMENDATIONS ----------------
+  useEffect(() => {
+    if (!video?._id) return;
+
+    const fetchRecommendations = async () => {
+      try {
+        const { data } = await api.get(`/recommendations`);
+
+        setRecommended(data.videos || []);
+      } catch (err) {
+        console.error("RECOMMENDATION ERROR", err);
+      } finally {
+        setRecLoading(false);
+      }
+    };
+
+    fetchRecommendations();
+  }, [video]);
+
   // ---------------- ADD COMMENT ----------------
   const submitComment = async (e) => {
     e.preventDefault();
@@ -382,8 +406,53 @@ const Watch = () => {
         </div>
 
         {/* RIGHT SIDEBAR */}
-        <div className="hidden lg:block text-gray-500 text-sm">
-          Recommendations coming soon
+        {/* RIGHT SIDEBAR — RECOMMENDATIONS */}
+        <div className="hidden lg:block space-y-4">
+          <h3 className="text-sm font-semibold text-white mb-2">Up next</h3>
+
+          {recLoading ? (
+            <p className="text-gray-500 text-sm">Loading recommendations…</p>
+          ) : recommended.length === 0 ? (
+            <p className="text-gray-500 text-sm">No recommendations</p>
+          ) : (
+            <div className="space-y-4">
+              {recommended.map((v) => (
+                <div
+                  key={v._id}
+                  onClick={() => navigate(`/watch/${v._id}`)}
+                  className="flex gap-3 cursor-pointer group"
+                >
+                  {/* THUMBNAIL */}
+                  <div className="w-40 aspect-video bg-neutral-800 rounded-lg overflow-hidden shrink-0">
+                    <img
+                      src={v.thumbnailUrl}
+                      alt={v.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition"
+                    />
+                  </div>
+
+                  {/* META */}
+                  <div className="flex flex-col gap-1">
+                    <p className="text-sm font-medium line-clamp-2">
+                      {v.title}
+                    </p>
+
+                    <p
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/channel/${v.owner._id}`);
+                      }}
+                      className="text-xs text-gray-400 hover:text-gray-200"
+                    >
+                      {v.owner.name}
+                    </p>
+
+                    <p className="text-xs text-gray-500">{v.views} views</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

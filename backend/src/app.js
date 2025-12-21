@@ -10,6 +10,8 @@ import channelRoutes from './routes/channel.routes.js';
 import subscriptionRoutes from './routes/subscription.routes.js';
 import searchRoutes from './routes/search.routes.js';
 import watchHistoryRoutes from './routes/watchHistory.routes.js';
+import recommendationRoutes from "./routes/recommendation.routes.js";
+
 
 const app = express();
 
@@ -37,6 +39,7 @@ app.use('/api/channels', channelRoutes);
 app.use('/api/subscriptions', subscriptionRoutes);
 app.use('/api/search', searchRoutes);
 app.use('/api/history', watchHistoryRoutes);
+app.use("/api/recommendations", recommendationRoutes);
 
 
 export default app;
