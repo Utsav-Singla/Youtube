@@ -32,8 +32,9 @@ const searchVideos = async (req, res) => {
       .sort({ score: { $meta: 'textScore' } })
       .skip(skip)
       .limit(limit)
-      .select('title thumbnailUrl views createdAt');
-
+      .select('title thumbnailUrl views createdAt')
+      .populate('owner', 'name avatar')   // ✅ channel name
+      .lean();
     const totalResults = await Video.countDocuments({
       $text: { $search: query },
       isPublished: true,

@@ -16,6 +16,7 @@ const Search = () => {
       try {
         const { data } = await api.get(`/search?q=${query}`);
         setVideos(data.videos || []);
+        console.log("SEARCH RESULTS", data.videos);
       } catch (err) {
         console.error("SEARCH ERROR", err);
       } finally {
@@ -69,7 +70,7 @@ const Search = () => {
 
                 {/* META */}
                 <p className="text-sm text-gray-400 mt-1">
-                  {v.channelName || "Unknown Channel"} •{" "}
+                  {v.owner?.name || "Unknown Channel"} •{" "}
                   {v.views || 0} views
                 </p>
 
