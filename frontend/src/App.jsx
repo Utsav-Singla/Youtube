@@ -12,6 +12,7 @@ import AuthRedirect from "./components/AuthRedirect";
 import MainLayout from "./layouts/MainLayout";
 import WatchHistory from "./pages/WatchHistory";
 import Channel from "./pages/Channel";
+import Notifications from "./pages/Notifications";
 
 const App = () => {
   return (
@@ -49,6 +50,8 @@ const App = () => {
         <Route path="/search" element={<Search />} />
         <Route path="/history" element={<WatchHistory />} />
         <Route path="/channel/:id" element={<Channel />} />
+        <Route path="/notifications" element={<Notifications />} />
+
       </Route>
     </Routes>
   );

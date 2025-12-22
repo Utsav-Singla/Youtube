@@ -7,6 +7,7 @@ const Home = () => {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
+  const fallbackTriggered = useRef(false);
 
   const [mode, setMode] = useState("recommendations");
   // "recommendations" | "all"
@@ -34,51 +35,50 @@ const Home = () => {
 
   // 🔹 Fetch videos
   useEffect(() => {
-    const fetchVideos = async () => {
-      try {
-        setLoading(true);
+  const fetchVideos = async () => {
+    try {
+      setLoading(true);
 
-        const endpoint =
-          mode === "recommendations"
-            ? `/recommendations?page=${page}&limit=12`
-            : `/videos?page=${page}&limit=12`;
+      const endpoint =
+        mode === "recommendations"
+          ? `/recommendations?page=${page}&limit=12`
+          : `/videos?page=${page}&limit=12`;
 
-        const { data } = await api.get(endpoint);
+      const { data } = await api.get(endpoint);
+      const newVideos = data.videos || [];
 
-        const newVideos = data.videos || [];
+      // 🔁 FALLBACK ONLY ONCE
+      if (
+        mode === "recommendations" &&
+        page === 1 &&
+        newVideos.length === 0 &&
+        !fallbackTriggered.current
+      ) {
+        fallbackTriggered.current = true;
 
-        // 🚫 prevent duplicates
-        setVideos((prev) => {
-          const ids = new Set(prev.map((v) => v._id));
-          const unique = newVideos.filter((v) => !ids.has(v._id));
-          return [...prev, ...unique];
-        });
-
-        // 🧠 fallback logic
-        // 🔁 FALLBACK LOGIC (CRITICAL)
-        if (
-          mode === "recommendations" &&
-          newVideos.length === 0 &&
-          page === 1
-        ) {
-          // switch to ALL videos
-          setMode("all");
-          setVideos([]);
-          setPage(1);
-          setHasMore(true);
-          return;
-        }
-
-        setHasMore(data.hasMore);
-      } catch (error) {
-        console.error("HOME FETCH ERROR", error);
-      } finally {
-        setLoading(false);
+        setVideos([]);
+        setPage(1);
+        setHasMore(true);
+        setMode("all");
+        return;
       }
-    };
 
-    fetchVideos();
-  }, [page, mode]);
+      setVideos((prev) => {
+        const ids = new Set(prev.map((v) => v._id));
+        const unique = newVideos.filter((v) => !ids.has(v._id));
+        return [...prev, ...unique];
+      });
+
+      setHasMore(data.hasMore);
+    } catch (error) {
+      console.error("HOME FETCH ERROR", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchVideos();
+}, [page, mode]);
 
   return (
     <div className="min-h-screen bg-black text-white px-4 sm:px-6 py-6">

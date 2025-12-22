@@ -1,5 +1,8 @@
-import Video from '../models/video.models.js'
+import Video from '../models/video.models.js';
 import Like from '../models/like.models.js';
+import Subscription from '../models/subscription.models.js';
+import Notification from '../models/notification.models.js';
+
 import mongoose from 'mongoose';
 /**
  * @desc    Upload video
@@ -35,6 +38,22 @@ const uploadVideoController = async (req, res) => {
       owner: req.user._id,
       isPublished: true, // 🔥 important
     });
+
+    // 🔔 Notify subscribers about new video
+    const subscribers = await Subscription.find({
+      channel: req.user._id,
+    }).select('subscriber');
+
+    if (subscribers.length > 0) {
+      const notifications = subscribers.map((sub) => ({
+        user: sub.subscriber, // who will receive notification
+        video: video._id, // new video
+        channel: req.user._id, // uploader
+        message: `${req.user.name} uploaded a new video`,
+      }));
+
+      await Notification.insertMany(notifications);
+    }
 
     return res.status(201).json({
       success: true,
@@ -86,7 +105,6 @@ const getAllVideos = async (req, res) => {
   }
 };
 
-
 /**
  * @desc    Get single video (Watch Page)
  * @route   GET /api/videos/:id
@@ -133,19 +151,18 @@ const getVideoById = async (req, res) => {
   }
 };
 
-
 const getVideoReactions = async (req, res) => {
   try {
     const { id } = req.params;
 
     const likes = await Like.countDocuments({
       video: id,
-      type: "like",
+      type: 'like',
     });
 
     const dislikes = await Like.countDocuments({
       video: id,
-      type: "dislike",
+      type: 'dislike',
     });
 
     let userReaction = null;
@@ -167,13 +184,12 @@ const getVideoReactions = async (req, res) => {
       userReaction,
     });
   } catch (error) {
-    console.error("GET REACTIONS ERROR:", error);
+    console.error('GET REACTIONS ERROR:', error);
     return res.status(500).json({
       success: false,
-      message: "Failed to fetch reactions",
+      message: 'Failed to fetch reactions',
     });
   }
 };
-
 
 export { uploadVideoController, getAllVideos, getVideoById, getVideoReactions };
