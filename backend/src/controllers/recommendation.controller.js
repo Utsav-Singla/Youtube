@@ -11,65 +11,49 @@ import Subscription from "../models/subscription.models.js";
 const getRecommendations = async (req, res) => {
   try {
     const userId = req.user._id;
+    const page = Number(req.query.page || 1);
+    const limit = Number(req.query.limit || 12);
+    const skip = (page - 1) * limit;
 
-    /* --------------------------------
-       1. FETCH WATCH HISTORY
-    -------------------------------- */
+    /* WATCHED VIDEOS */
     const watchedDocs = await WatchHistory.find({ user: userId })
       .select("video")
       .lean();
 
-    // 🔑 Normalize ObjectIds (CRITICAL)
     const watchedVideoIds = watchedDocs.map(
       (w) => new mongoose.Types.ObjectId(w.video)
     );
 
-    /* --------------------------------
-       2. FETCH SUBSCRIPTIONS
-    -------------------------------- */
-    const subDocs = await Subscription.find({ subscriber: userId })
+    /* SUBSCRIPTIONS */
+    const subs = await Subscription.find({ subscriber: userId })
       .select("channel")
       .lean();
 
-    const subscribedChannelIds = subDocs.map(
+    const subscribedChannelIds = subs.map(
       (s) => new mongoose.Types.ObjectId(s.channel)
     );
 
-    /* --------------------------------
-       3. MAIN RECOMMENDATION QUERY
-    -------------------------------- */
-    let videos = await Video.find({
+    /* MAIN QUERY */
+    const videos = await Video.find({
       isPublished: true,
-      _id: { $nin: watchedVideoIds }, // ✅ exclude watched
+      _id: { $nin: watchedVideoIds },
       $or: [
-        { owner: { $in: subscribedChannelIds } }, // subscriptions
-        { views: { $gte: 5 } },                   // popularity
+        { owner: { $in: subscribedChannelIds } },
+        { views: { $gte: 5 } },
       ],
     })
-      .sort({
-        views: -1,        // popularity
-        createdAt: -1,    // freshness
-      })
-      .limit(30)
+      .sort({ views: -1, createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
       .populate("owner", "name")
       .lean();
 
-    /* --------------------------------
-       4. FALLBACK FOR NEW USERS
-    -------------------------------- */
-    if (videos.length === 0) {
-      videos = await Video.find({
-        isPublished: true,
-        _id: { $nin: watchedVideoIds },
-      })
-        .sort({ createdAt: -1 })
-        .limit(20)
-        .populate("owner", "name")
-        .lean();
-    }
+    const hasMore = videos.length === limit;
 
     return res.status(200).json({
       success: true,
+      page,
+      hasMore,
       videos,
     });
   } catch (error) {
